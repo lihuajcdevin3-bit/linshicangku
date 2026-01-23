@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>火车车次记录工具</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Microsoft Yahei", sans-serif;
+        }
+        body {
+            background-color: #f5f7fa;
+            padding: 30px;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 30px;
+            font-size: 24px;
+        }
+        .form-section {
+            background: #fff;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            margin-bottom: 30px;
+        }
+        .form-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .form-item {
+            flex: 1;
+            min-width: 160px;
+        }
+        label {
+            display: block;
+            margin-bottom: 6px;
+            color: #34495e;
+            font-weight: 500;
+            font-size: 14px;
+        }
+        input, select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        input:focus, select:focus {
+            outline: none;
+            border-color: #27ae60;
+        }
+        .add-btn {
+            background: #27ae60;
+            color: #fff;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 15px;
+            transition: background 0.3s;
+        }
+        .add-btn:hover {
+            background: #219653;
+        }
+        .trains-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 20px;
+        }
+        .train-card {
+            background: #fff;
+            border-radius: 12px;
+            padding: 22px;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.06);
+            border-left: 4px solid #27ae60;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .train-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 18px;
+            border-bottom: 1px solid #f1f1f1;
+            padding-bottom: 12px;
+        }
+        .train-number {
+            font-size: 18px;
+            font-weight: 600;
+            color: #2c3e50;
+            letter-spacing: 0.5px;
+        }
+        .seat-type {
+            font-size: 14px;
+            color: #27ae60;
+            background: #f0f9f4;
+            padding: 4px 10px;
+            border-radius: 20px;
+        }
+        .route {
+            font-size: 15px;
+            color: #34495e;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .route span {
+            flex: 1;
+            text-align: center;
+        }
+        .route .arrow {
+            color: #bdc3c7;
+            font-size: 16px;
+        }
+        .time-info {
+            display: flex;
+            justify-content: space-between;
+            margin: 12px 0;
+            color: #7f8c8d;
+            font-size: 14px;
+        }
+        .time-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+        }
+        .time-label {
+            font-size: 12px;
+            color: #95a5a6;
+            margin-bottom: 3px;
+        }
+        .price {
+            font-size: 19px;
+            font-weight: bold;
+            color: #e74c3c;
+            text-align: right;
+            margin-top: 12px;
+        }
+        .duration {
+            font-size: 13px;
+            color: #95a5a6;
+            text-align: center;
+            margin: 8px 0;
+            padding: 3px 0;
+            background: #f8f9fa;
+            border-radius: 4px;
+        }
+        /* 新增座位号样式 - 不改动原有样式 */
+        .seat-nums {
+            font-size: 14px;
+            color: #2c3e50;
+            margin: 10px 0;
+            padding: 6px 10px;
+            background: #f8f9fa;
+            border-radius: 6px;
+        }
+        .seat-nums label {
+            font-weight: 500;
+            margin-bottom: 0;
+            display: inline;
+            color: #7f8c8d;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>火车车次记录工具</h1>
+        <!-- 表单区域 - 新增座位号输入项 -->
+        <div class="form-section">
+            <div class="form-group">
+                <div class="form-item">
+                    <label for="trainNumber">车次编号</label>
+                    <input type="text" id="trainNumber" placeholder="如：G123、D456">
+                </div>
+                <div class="form-item">
+                    <label for="departure">出发地</label>
+                    <input type="text" id="departure" placeholder="如：北京西站">
+                </div>
+                <div class="form-item">
+                    <label for="destination">目的地</label>
+                    <input type="text" id="destination" placeholder="如：上海虹桥站">
+                </div>
+                <div class="form-item">
+                    <label for="departTime">出发时间</label>
+                    <input type="datetime-local" id="departTime">
+                </div>
+                <div class="form-item">
+                    <label for="arriveTime">到达时间</label>
+                    <input type="datetime-local" id="arriveTime">
+                </div>
+                <div class="form-item">
+                    <label for="seatType">座位类型</label>
+                    <select id="seatType">
+                        <option value="二等座">二等座</option>
+                        <option value="一等座">一等座</option>
+                        <option value="商务座">商务座</option>
+                        <option value="硬座">硬座</option>
+                        <option value="硬卧">硬卧</option>
+                        <option value="软卧">软卧</option>
+                    </select>
+                </div>
+                <div class="form-item">
+                    <label for="price">价格（元）</label>
+                    <input type="number" id="price" placeholder="如：553">
+                </div>
+                <!-- 新增：多座位号输入框 -->
+                <div class="form-item">
+                    <label for="seatNums">座位号</label>
+                    <input type="text" id="seatNums" placeholder="多个用,/、/ 分隔，如：05A,06B">
+                </div>
+            </div>
+            <button class="add-btn" onclick="addTrain()">添加车次</button>
+        </div>
+        <!-- 火车车次卡片展示区域 -->
+        <div class="trains-list" id="trainsList"></div>
+    </div>
+
+    <script>
+        function addTrain() {
+            // 获取表单输入值 - 新增座位号
+            const trainNumber = document.getElementById('trainNumber').value.trim();
+            const departure = document.getElementById('departure').value.trim();
+            const destination = document.getElementById('destination').value.trim();
+            const departTime = document.getElementById('departTime').value;
+            const arriveTime = document.getElementById('arriveTime').value;
+            const seatType = document.getElementById('seatType').value;
+            const price = document.getElementById('price').value.trim();
+            let seatNums = document.getElementById('seatNums').value.trim();
+
+            // 简单验证 - 座位号非必填（可空）
+            if (!trainNumber || !departure || !destination || !departTime || !arriveTime || !price) {
+                alert('请填写完整车次信息');
+                return;
+            }
+
+            // 处理多座位号：统一分隔符为逗号，去空值
+            if (seatNums) {
+                seatNums = seatNums.replace(/，| /g, ',').split(',').filter(item => item).join('，');
+            } else {
+                seatNums = '未填写';
+            }
+
+            // 计算行程时长
+            const duration = calculateDuration(departTime, arriveTime);
+
+            // 创建车次卡片 - 新增座位号展示
+            const trainsList = document.getElementById('trainsList');
+            const card = document.createElement('div');
+            card.className = 'train-card';
+            card.innerHTML = `
+                <div class="card-header">
+                    <div class="train-number">${trainNumber}</div>
+                    <div class="seat-type">${seatType}</div>
+                </div>
+                <div class="route">
+                    <span>${departure}</span>
+                    <span class="arrow">→</span>
+                    <span>${destination}</span>
+                </div>
+                <div class="duration">行程时长：${duration}</div>
+                <div class="time-info">
+                    <div class="time-item">
+                        <span class="time-label">出发</span>
+                        <span>${formatTime(departTime)}</span>
+                    </div>
+                    <div class="time-item">
+                        <span class="time-label">到达</span>
+                        <span>${formatTime(arriveTime)}</span>
+                    </div>
+                </div>
+                <!-- 新增：座位号展示 -->
+                <div class="seat-nums"><label>座位号：</label>${seatNums}</div>
+                <div class="price">¥${price}</div>
+            `;
+            trainsList.appendChild(card);
+
+            // 清空表单 - 新增清空座位号
+            document.getElementById('trainNumber').value = '';
+            document.getElementById('departure').value = '';
+            document.getElementById('destination').value = '';
+            document.getElementById('departTime').value = '';
+            document.getElementById('arriveTime').value = '';
+            document.getElementById('seatType').value = '二等座';
+            document.getElementById('price').value = '';
+            document.getElementById('seatNums').value = '';
+
+            // 按价格从低到高排序卡片
+            sortTrainsByPrice();
+        }
+
+        // 格式化时间显示
+        function formatTime(datetimeStr) {
+            const date = new Date(datetimeStr);
+            return date.toLocaleString('zh-CN', {
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        // 计算行程时长
+        function calculateDuration(departStr, arriveStr) {
+            const departTime = new Date(departStr).getTime();
+            const arriveTime = new Date(arriveStr).getTime();
+            const diff = arriveTime - departTime;
+
+            const hours = Math.floor(diff / 3600000);
+            const minutes = Math.floor((diff % 3600000) / 60000);
+
+            return `${hours}小时${minutes}分钟`;
+        }
+
+        // 按价格从低到高排序车次卡片
+        function sortTrainsByPrice() {
+            const trainsList = document.getElementById('trainsList');
+            const cards = Array.from(trainsList.children);
+
+            cards.sort((a, b) => {
+                const priceA = parseInt(a.querySelector('.price').textContent.replace('¥', ''));
+                const priceB = parseInt(b.querySelector('.price').textContent.replace('¥', ''));
+                return priceA - priceB;
+            });
+
+            // 重新添加排序后的卡片
+            trainsList.innerHTML = '';
+            cards.forEach(card => trainsList.appendChild(card));
+        }
+    </script>
+</body>
+</html>
