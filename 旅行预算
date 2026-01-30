@@ -1,1333 +1,995 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>旅行预算管理 - iOS风格</title>
-  <!-- 引入Tailwind CSS -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <!-- 引入Font Awesome图标 -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-  <!-- 自定义Tailwind主题：适配iOS风格 -->
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            primary: '#007AFF', // iOS经典蓝
-            secondary: '#F5F5F7', // iOS背景灰
-            light: '#F2F2F7', // 卡片浅灰
-            dark: '#1D1D1F', // 文字深灰
-            gray: {
-              100: '#F8F8FA',
-              200: '#E8E8ED',
-              300: '#D1D1D6',
-              400: '#999999',
-              500: '#666666',
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>密码管理器APP原型设计</title>
+    <!-- Tailwind CSS v3 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <!-- 统一的 Tailwind 配置 -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#3B82F6', // 浅蓝色
+                        secondary: '#F97316', // 橙色
+                        accent: '#EF4444', // 浅红色
+                        background: '#FFFFFF', // 白色
+                        'gray-light': '#F3F4F6',
+                        'gray-medium': '#9CA3AF',
+                        'gray-dark': '#4B5563'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'card': '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+                        'card-hover': '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.3s ease-in-out',
+                        'slide-in': 'slideIn 0.3s ease-in-out',
+                        'pulse-light': 'pulseLight 2s infinite',
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' },
+                        },
+                        slideIn: {
+                            '0%': { transform: 'translateY(10px)', opacity: '0' },
+                            '100%': { transform: 'translateY(0)', opacity: '1' },
+                        },
+                        pulseLight: {
+                            '0%, 100%': { opacity: '1' },
+                            '50%': { opacity: '0.8' },
+                        }
+                    }
+                }
             }
-          },
-          borderRadius: {
-            'ios': '12px', // iOS卡片圆角
-            'ios-sm': '8px', // 按钮/输入框圆角
-          },
-          boxShadow: {
-            'ios': '0 2px 8px rgba(0, 0, 0, 0.08)', // iOS轻阴影
-            'ios-hover': '0 4px 12px rgba(0, 122, 255, 0.12)', // 卡片悬浮阴影
-          },
-          fontFamily: {
-            inter: ['Inter', 'system-ui', 'sans-serif'], // 适配多设备字体
-          }
-        },
-      }
-    }
-  </script>
-  <style type="text/tailwindcss">
-    @layer utilities {
-      .content-auto {
-        content-visibility: auto;
-      }
-      .scrollbar-hide {
-        -ms-overflow-style: none;
-        scrollbar-width: none;
-      }
-      .scrollbar-hide::-webkit-scrollbar {
-        display: none;
-      }
-      .route-line {
-        @apply w-0.5 bg-primary/30 h-full mx-auto;
-      }
-      .route-node-active {
-        @apply ring-2 ring-primary ring-offset-2 ring-offset-white;
-      }
-    }
-    /* 全局样式 */
-    body {
-      @apply bg-secondary font-inter text-dark;
-    }
-    .card-ios {
-      @apply bg-white rounded-ios shadow-ios hover:shadow-ios-hover transition-shadow duration-300 mb-4;
-    }
-    .btn-ios {
-      @apply bg-primary text-white rounded-ios-sm py-2 px-4 font-medium hover:bg-primary/90 active:bg-primary/80 transition-all duration-200;
-    }
-    .btn-ios-outline {
-      @apply border border-primary text-primary rounded-ios-sm py-2 px-4 font-medium hover:bg-primary/5 transition-all duration-200;
-    }
-    .input-ios {
-      @apply w-full border border-gray-200 rounded-ios-sm py-2 px-3 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/50 transition-all duration-200;
-    }
-    .tab-active {
-      @apply border-b-2 border-primary text-primary;
-    }
-  </style>
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .app-container {
+                @apply w-[360px] h-[740px] bg-background rounded-xl shadow-lg overflow-hidden border-2 border-gray-200;
+            }
+            .app-header {
+                @apply bg-primary text-white p-4 flex items-center justify-between shadow-md;
+            }
+            .app-body {
+                @apply p-4 h-[calc(100%-64px)] overflow-y-auto;
+            }
+            .card {
+                @apply bg-white rounded-lg shadow-card p-4 mb-4 transition-all duration-300;
+            }
+            .card:hover {
+                @apply shadow-card-hover transform -translate-y-1;
+            }
+            .btn {
+                @apply px-4 py-2 rounded-lg font-medium transition-all duration-200;
+            }
+            .btn-primary {
+                @apply bg-primary text-white hover:bg-blue-600;
+            }
+            .btn-secondary {
+                @apply bg-secondary text-white hover:bg-orange-600;
+            }
+            .btn-accent {
+                @apply bg-accent text-white hover:bg-red-600;
+            }
+            .btn-outline {
+                @apply border border-gray-300 hover:bg-gray-100;
+            }
+            .input-field {
+                @apply w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent;
+            }
+            .password-strength-weak {
+                @apply h-2 bg-accent rounded-full;
+            }
+            .password-strength-medium {
+                @apply h-2 bg-yellow-500 rounded-full;
+            }
+            .password-strength-strong {
+                @apply h-2 bg-green-500 rounded-full;
+            }
+            .tab-active {
+                @apply border-b-2 border-primary text-primary;
+            }
+            .drawer {
+                @apply fixed top-0 left-0 h-full w-64 bg-white shadow-lg transform -translate-x-full transition-transform duration-300 ease-in-out z-50;
+            }
+            .drawer-open {
+                @apply transform translate-x-0;
+            }
+            .overlay {
+                @apply fixed inset-0 bg-black bg-opacity-50 z-40 hidden;
+            }
+            .overlay-visible {
+                @apply block;
+            }
+            .biometric-icon {
+                @apply text-5xl text-primary animate-pulse-light;
+            }
+            .password-card {
+                @apply bg-white rounded-lg shadow-card p-4 mb-4 border-l-4 border-primary;
+            }
+            .password-card-finance {
+                @apply border-l-4 border-green-500;
+            }
+            .password-card-social {
+                @apply border-l-4 border-blue-400;
+            }
+            .password-card-email {
+                @apply border-l-4 border-yellow-500;
+            }
+            .password-card-other {
+                @apply border-l-4 border-gray-500;
+            }
+            .skeleton {
+                @apply animate-pulse bg-gray-200 rounded;
+            }
+        }
+    </style>
 </head>
-<body class="min-h-screen flex flex-col">
-  <!-- 顶部导航栏：固定+自适应 -->
-  <header class="sticky top-0 z-50 bg-white shadow-sm">
-    <div class="container mx-auto px-4 py-3 flex items-center justify-between">
-      <!-- 左侧Logo -->
-      <div class="flex items-center gap-2">
-        <i class="fa-solid fa-suitcase-rolling text-primary text-xl"></i>
-        <h1 class="text-lg font-bold hidden sm:block">旅行预算管理</h1>
-        <h1 class="text-lg font-bold sm:hidden">旅行预算</h1>
-      </div>
-
-      <!-- 中间标签：电脑/平板显示，手机隐藏 -->
-      <nav class="hidden md:flex items-center gap-6">
-        <a href="#train" class="tab-link py-1 text-sm tab-active"><i class="fa-solid fa-train mr-1"></i>火车</a>
-        <a href="#plane" class="tab-link py-1 text-sm"><i class="fa-solid fa-plane mr-1"></i>飞机</a>
-        <a href="#hotel" class="tab-link py-1 text-sm"><i class="fa-solid fa-hotel mr-1"></i>酒店</a>
-        <a href="#restaurant" class="tab-link py-1 text-sm"><i class="fa-solid fa-utensils mr-1"></i>餐厅</a>
-        <a href="#scenic" class="tab-link py-1 text-sm"><i class="fa-solid fa-mountain-sun mr-1"></i>景点</a>
-        <a href="#route" class="tab-link py-1 text-sm"><i class="fa-solid fa-map-location-dot mr-1"></i>路线</a>
-      </nav>
-
-      <!-- 右侧功能按钮 -->
-      <div class="flex items-center gap-3">
-        <button id="compareBtn" class="btn-ios-outline text-sm hidden sm:flex items-center">
-          <i class="fa-solid fa-balance-scale mr-1"></i>对比
-        </button>
-        <button id="addCustomBtn" class="btn-ios-outline text-sm flex items-center">
-          <i class="fa-solid fa-plus mr-1"></i>自定义
-        </button>
-        <!-- 手机端汉堡菜单 -->
-        <button id="hamburgerBtn" class="sm:hidden text-dark text-xl">
-          <i class="fa-solid fa-bars"></i>
-        </button>
-      </div>
-    </div>
-
-    <!-- 汉堡菜单弹窗：手机端 -->
-    <div id="hamburgerMenu" class="hidden absolute top-full left-0 w-full bg-white shadow-ios py-3 px-4 flex flex-col gap-3">
-      <a href="#train" class="hamburger-tab py-2 px-3 rounded-ios-sm hover:bg-light flex items-center gap-2"><i class="fa-solid fa-train text-primary"></i>火车</a>
-      <a href="#plane" class="hamburger-tab py-2 px-3 rounded-ios-sm hover:bg-light flex items-center gap-2"><i class="fa-solid fa-plane text-primary"></i>飞机</a>
-      <a href="#hotel" class="hamburger-tab py-2 px-3 rounded-ios-sm hover:bg-light flex items-center gap-2"><i class="fa-solid fa-hotel text-primary"></i>酒店</a>
-      <a href="#restaurant" class="hamburger-tab py-2 px-3 rounded-ios-sm hover:bg-light flex items-center gap-2"><i class="fa-solid fa-utensils text-primary"></i>餐厅</a>
-      <a href="#scenic" class="hamburger-tab py-2 px-3 rounded-ios-sm hover:bg-light flex items-center gap-2"><i class="fa-solid fa-mountain-sun text-primary"></i>景点</a>
-      <a href="#route" class="hamburger-tab py-2 px-3 rounded-ios-sm hover:bg-light flex items-center gap-2"><i class="fa-solid fa-map-location-dot text-primary"></i>路线</a>
-      <button class="hamburger-tab py-2 px-3 rounded-ios-sm hover:bg-light flex items-center gap-2 text-primary border border-primary/30">
-        <i class="fa-solid fa-balance-scale"></i>车次/航班对比
-      </button>
-    </div>
-  </header>
-
-  <!-- 主内容区：自适应+卡片式 -->
-  <main class="flex-1 container mx-auto px-4 py-6">
-    <!-- 车次/航班对比弹窗：长春→蓟州区中转专属 -->
-    <div id="compareModal" class="fixed inset-0 z-50 bg-black/50 flex items-center justify-center hidden">
-      <div class="bg-white rounded-ios w-full max-w-3xl max-h-[80vh] overflow-y-auto scrollbar-hide p-6">
-        <div class="flex justify-between items-center mb-4">
-          <h2 class="text-lg font-bold flex items-center gap-2">
-            <i class="fa-solid fa-balance-scale text-primary"></i>车次/航班对比（长春→蓟州区）
-          </h2>
-          <button id="closeCompareModal" class="text-gray-400 hover:text-gray-600">
-            <i class="fa-solid fa-xmark text-xl"></i>
-          </button>
-        </div>
-        <!-- 对比类型选择 -->
-        <div class="flex gap-4 mb-6">
-          <button class="compare-type-btn btn-ios text-sm" data-type="train">火车车次</button>
-          <button class="compare-type-btn btn-ios-outline text-sm" data-type="plane">飞机航班</button>
-        </div>
-        <!-- 对比结果表格：火车 -->
-        <div id="trainCompareTable" class="w-full">
-          <table class="w-full border-collapse">
-            <thead>
-              <tr class="bg-light rounded-ios-sm">
-                <th class="py-3 px-2 text-left text-sm font-medium">中转地</th>
-                <th class="py-3 px-2 text-left text-sm font-medium">车次（长春→中转）</th>
-                <th class="py-3 px-2 text-left text-sm font-medium">耗时/价格</th>
-                <th class="py-3 px-2 text-left text-sm font-medium">车次（中转→天津）</th>
-                <th class="py-3 px-2 text-left text-sm font-medium">耗时/价格</th>
-                <th class="py-3 px-2 text-left text-sm font-medium">总耗时/总价格</th>
-              </tr>
-            </thead>
-            <tbody id="trainCompareBody" class="divide-y divide-gray-100">
-              <!-- JS动态生成对比数据 -->
-            </tbody>
-          </table>
-          <p id="trainCompareEmpty" class="text-center py-8 text-gray-400">暂无中转车次数据，先添加长春→中转地、中转地→天津的车次吧～</p>
-        </div>
-        <!-- 对比结果表格：飞机 -->
-        <div id="planeCompareTable" class="w-full hidden">
-          <table class="w-full border-collapse">
-            <thead>
-              <tr class="bg-light rounded-ios-sm">
-                <th class="py-3 px-2 text-left text-sm font-medium">中转地</th>
-                <th class="py-3 px-2 text-left text-sm font-medium">航班（长春→中转）</th>
-                <th class="py-3 px-2 text-left text-sm font-medium">耗时/价格</th>
-                <th class="py-3 px-2 text-left text-sm font-medium">航班（中转→天津）</th>
-                <th class="py-3 px-2 text-left text-sm font-medium">耗时/价格</th>
-                <th class="py-3 px-2 text-left text-sm font-medium">总耗时/总价格</th>
-              </tr>
-            </thead>
-            <tbody id="planeCompareBody" class="divide-y divide-gray-100">
-              <!-- JS动态生成对比数据 -->
-            </tbody>
-          </table>
-          <p id="planeCompareEmpty" class="text-center py-8 text-gray-400">暂无中转航班数据，先添加长春→中转地、中转地→天津的航班吧～</p>
-        </div>
-      </div>
-    </div>
-
-    <!-- 自定义分类添加弹窗 -->
-    <div id="customModal" class="fixed inset-0 z-50 bg-black/50 flex items-center justify-center hidden">
-      <div class="bg-white rounded-ios w-full max-w-md p-6">
-        <div class="flex justify-between items-center mb-4">
-          <h2 class="text-lg font-bold flex items-center gap-2">
-            <i class="fa-solid fa-plus-circle text-primary"></i>添加自定义分类
-          </h2>
-          <button id="closeCustomModal" class="text-gray-400 hover:text-gray-600">
-            <i class="fa-solid fa-xmark text-xl"></i>
-          </button>
-        </div>
-        <form id="customForm" class="flex flex-col gap-4">
-          <div>
-            <label class="block text-sm font-medium text-gray-500 mb-1">分类名称</label>
-            <input type="text" name="customName" class="input-ios" placeholder="如：租车、特产、门票" required>
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-500 mb-1">选择图标</label>
-            <select name="customIcon" class="input-ios" required>
-              <option value="car">🚗 租车</option>
-              <option value="gift">🎁 特产</option>
-              <option value="ticket">🎫 门票</option>
-              <option value="camera">📷 拍照</option>
-              <option value="coffee">☕ 饮品</option>
-            </select>
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-500 mb-1">预算金额（¥）</label>
-            <input type="number" name="customPrice" class="input-ios" placeholder="请输入金额" min="0" step="0.01" required>
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-500 mb-1">备注</label>
-            <textarea name="customDesc" class="input-ios" rows="2" placeholder="请输入备注（选填）"></textarea>
-          </div>
-          <button type="submit" class="btn-ios w-full">添加分类</button>
-        </form>
-      </div>
-    </div>
-
-    <!-- 火车模块 -->
-    <section id="train" class="tab-content">
-      <div class="flex justify-between items-center mb-4">
-        <h2 class="text-xl font-bold flex items-center gap-2">
-          <i class="fa-solid fa-train text-primary"></i>火车车次管理
-        </h2>
-        <button id="addTrainBtn" class="btn-ios flex items-center">
-          <i class="fa-solid fa-plus mr-1"></i>添加车次
-        </button>
-      </div>
-      <!-- 火车添加表单 -->
-      <form id="trainForm" class="card-ios p-4 mb-6 hidden">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label class="block text-sm font-medium text-gray-500 mb-1">车次号 <span class="text-red-500">*</span></label>
-            <input type="text" name="trainNo" class="input-ios" placeholder="如：G1234、D5678" required>
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-500 mb-1">始发地 <span class="text-red-500">*</span></label>
-            <input type="text" name="startCity" class="input-ios" placeholder="如：长春" required>
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-500 mb-1">目的地 <span class="text-red-500">*</span></label>
-            <input type="text" name="endCity" class="input-ios" placeholder="如：秦皇岛、天津西" required>
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-500 mb-1">出发时间 <span class="text-red-500">*</span></label>
-            <input type="datetime-local" name="startTime" class="input-ios" required>
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-500 mb-1">到站时间 <span class="text-red-500">*</span></label>
-            <input type="datetime-local" name="endTime" class="input-ios" required>
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-500 mb-1">车厢号</label>
-            <input type="text" name="carriage" class="input-ios" placeholder="如：05、12">
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-500 mb-1">座位号 <span class="text-red-500">*</span></label>
-            <input type="text" name="seat" class="input-ios" placeholder="如：08A、15B" required>
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-500 mb-1">票价（¥）<span class="text-red-500">*</span></label>
-            <input type="number" name="price" class="input-ios" placeholder="请输入票价" min="0" step="0.01" required>
-          </div>
-          <div class="md:col-span-2">
-            <label class="flex items-center gap-2 text-sm font-medium text-gray-500 mb-1">
-              <input type="checkbox" name="isTransfer" class="rounded-ios-sm text-primary">
-              中转车次（长春→蓟州区专用）
-            </label>
-            <input type="text" name="transferTo" class="input-ios mt-1 hidden" placeholder="中转前往的城市，如：天津">
-          </div>
-          <div class="md:col-span-2">
-            <label class="block text-sm font-medium text-gray-500 mb-1">备注</label>
-            <textarea name="desc" class="input-ios" rows="2" placeholder="请输入备注（选填）"></textarea>
-          </div>
-        </div>
-        <div class="flex gap-3 mt-4 justify-end">
-          <button type="button" id="cancelTrainBtn" class="btn-ios-outline">取消</button>
-          <button type="submit" class="btn-ios">保存车次</button>
-        </div>
-      </form>
-      <!-- 火车车次列表 -->
-      <div id="trainList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        <!-- JS动态生成火车卡片 -->
-        <div class="col-span-1 md:col-span-2 lg:col-span-3 flex items-center justify-center py-8 text-gray-400">
-          <i class="fa-solid fa-train text-4xl mb-2 opacity-30"></i>
-          <p>暂无火车车次数据，点击「添加车次」开始录入吧～</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- 飞机模块 -->
-    <section id="plane" class="tab-content hidden">
-      <div class="flex justify-between items-center mb-4">
-        <h2 class="text-xl font-bold flex items-center gap-2">
-          <i class="fa-solid fa-plane text-primary"></i>飞机航班管理
-        </h2>
-        <button id="addPlaneBtn" class="btn-ios flex items-center">
-          <i class="fa-solid fa-plus mr-1"></i>添加航班
-        </button>
-      </div>
-      <!-- 飞机添加表单 -->
-      <form id="planeForm" class="card-ios p-4 mb-6 hidden">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label class="block text-sm font-medium text-gray-500 mb-1">航班号 <span class="text-red-500">*</span></label>
-            <input type="text" name="planeNo" class="input-ios" placeholder="如：CA1234、MU5678" required>
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-500 mb-1">航空公司 <span class="text-red-500">*</span></label>
-            <input type="text" name="airline" class="input-ios" placeholder="如：国航、南航、东航" required>
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-500 mb-1">出发地 <span class="text-red-500">*</span></label>
-            <input type="text" name="startCity" class="input-ios" placeholder="如：长春龙嘉机场" required>
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-500 mb-1">目的地 <span class="text-red-500">*</span></label>
-            <input type="text" name="endCity" class="input-ios" placeholder="如：北京大兴机场" required>
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-500 mb-1">起飞时间 <span class="text-red-500">*</span></label>
-            <input type="datetime-local" name="startTime" class="input-ios" required>
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-500 mb-1">降落时间 <span class="text-red-500">*</span></label>
-            <input type="datetime-local" name="endTime" class="input-ios" required>
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-500 mb-1">坐席等级 <span class="text-red-500">*</span></label>
-            <select name="seatLevel" class="input-ios" required>
-              <option value="经济舱">经济舱</option>
-              <option value="商务舱">商务舱</option>
-              <option value="头等舱">头等舱</option>
-            </select>
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-500 mb-1">票价（¥）<span class="text-red-500">*</span></label>
-            <input type="number" name="price" class="input-ios" placeholder="请输入票价" min="0" step="0.01" required>
-          </div>
-          <div class="md:col-span-2">
-            <label class="flex items-center gap-2 text-sm font-medium text-gray-500 mb-1">
-              <input type="checkbox" name="isTransfer" class="rounded-ios-sm text-primary">
-              中转航班（长春→蓟州区专用）
-            </label>
-            <input type="text" name="transferTo" class="input-ios mt-1 hidden" placeholder="中转前往的城市，如：天津">
-          </div>
-          <div class="md:col-span-2">
-            <label class="block text-sm font-medium text-gray-500 mb-1">备注</label>
-            <textarea name="desc" class="input-ios" rows="2" placeholder="请输入备注（选填）"></textarea>
-          </div>
-        </div>
-        <div class="flex gap-3 mt-4 justify-end">
-          <button type="button" id="cancelPlaneBtn" class="btn-ios-outline">取消</button>
-          <button type="submit" class="btn-ios">保存航班</button>
-        </div>
-      </form>
-      <!-- 飞机航班列表 -->
-      <div id="planeList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        <!-- JS动态生成飞机卡片 -->
-        <div class="col-span-1 md:col-span-2 lg:col-span-3 flex items-center justify-center py-8 text-gray-400">
-          <i class="fa-solid fa-plane text-4xl mb-2 opacity-30"></i>
-          <p>暂无飞机航班数据，点击「添加航班」开始录入吧～</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- 酒店模块 -->
-    <section id="hotel" class="tab-content hidden">
-      <div class="flex justify-between items-center mb-4">
-        <h2 class="text-xl font-bold flex items-center gap-2">
-          <i class="fa-solid fa-hotel text-primary"></i>酒店住宿管理
-        </h2>
-        <button id="addHotelBtn" class="btn-ios flex items-center">
-          <i class="fa-solid fa-plus mr-1"></i>添加酒店
-        </button>
-      </div>
-      <!-- 酒店添加表单 -->
-      <form id="hotelForm" class="card-ios p-4 mb-6 hidden">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label class="block text-sm font-medium text-gray-500 mb-1">酒店名称 <span class="text-red-500">*</span></label>
-            <input type="text" name="hotelName" class="input-ios" placeholder="如：XX酒店、XX民宿" required>
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-500 mb-1">所在城市 <span class="text-red-500">*</span></label>
-            <input type="text" name="city" class="input-ios" placeholder="如：天津、秦皇岛" required>
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-500 mb-1">具体位置</label>
-            <input type="text" name="address" class="input-ios" placeholder="如：XX区XX路XX号">
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-500 mb-1">入住时间 <span class="text-red-500">*</span></label>
-            <input type="date" name="checkIn" class="input-ios" required>
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-500 mb-1">离店时间 <span class="text-red-500">*</span></label>
-            <input type="date" name="checkOut" class="input-ios" required>
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-500 mb-1">房型 <span class="text-red-500">*</span></label>
-            <input type="text" name="roomType" class="input-ios" placeholder="如：标准间、大床房" required>
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-500 mb-1">价格/晚（¥）<span class="text-red-500">*</span></label>
-            <input type="number" name="price" class="input-ios" placeholder="请输入价格" min="0" step="0.01" required>
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-500 mb-1">评分</label>
-            <select name="score" class="input-ios">
-              <option value="5">★★★★★</option>
-              <option value="4.5">★★★★☆</option>
-              <option value="4">★★★★</option>
-              <option value="3.5">★★★☆</option>
-              <option value="3">★★★</option>
-            </select>
-          </div>
-          <div class="md:col-span-2">
-            <label class="block text-sm font-medium text-gray-500 mb-1">备注</label>
-            <textarea name="desc" class="input-ios" rows="2" placeholder="请输入备注（选填）"></textarea>
-          </div>
-        </div>
-        <div class="flex gap-3 mt-4 justify-end">
-          <button type="button" id="cancelHotelBtn" class="btn-ios-outline">取消</button>
-          <button type="submit" class="btn-ios">保存酒店</button>
-        </div>
-      </form>
-      <!-- 酒店列表 -->
-      <div id="hotelList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        <!-- JS动态生成酒店卡片 -->
-        <div class="col-span-1 md:col-span-2 lg:col-span-3 flex items-center justify-center py-8 text-gray-400">
-          <i class="fa-solid fa-hotel text-4xl mb-2 opacity-30"></i>
-          <p>暂无酒店数据，点击「添加酒店」开始录入吧～</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- 餐厅模块 -->
-    <section id="restaurant" class="tab-content hidden">
-      <div class="flex justify-between items-center mb-4">
-        <h2 class="text-xl font-bold flex items-center gap-2">
-          <i class="fa-solid fa-utensils text-primary"></i>餐厅美食管理
-        </h2>
-        <button id="addRestaurantBtn" class="btn-ios flex items-center">
-          <i class="fa-solid fa-plus mr-1"></i>添加餐厅
-        </button>
-      </div>
-      <!-- 餐厅添加表单 -->
-      <form id="restaurantForm" class="card-ios p-4 mb-6 hidden">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label class="block text-sm font-medium text-gray-500 mb-1">餐厅名称 <span class="text-red-500">*</span></label>
-            <input type="text" name="restName" class="input-ios" placeholder="如：XX火锅、XX小吃" required>
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-500 mb-1">所属城市 <span class="text-red-500">*</span></label>
-            <input type="text" name="city" class="input-ios" placeholder="如：长春、天津、蓟州区" required>
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-500 mb-1">具体地址</label>
-            <input type="text" name="address" class="input-ios" placeholder="如：XX区XX路XX号">
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-500 mb-1">人均消费（¥）<span class="text-red-500">*</span></label>
-            <input type="number" name="perPrice" class="input-ios" placeholder="请输入人均" min="0" step="0.01" required>
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-500 mb-1">评分</label>
-            <select name="score" class="input-ios">
-              <option value="5">★★★★★</option>
-              <option value="4.5">★★★★☆</option>
-              <option value="4">★★★★</option>
-              <option value="3.5">★★★☆</option>
-              <option value="3">★★★</option>
-            </select>
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-500 mb-1">推荐菜品</label>
-            <input type="text" name="recommend" class="input-ios" placeholder="如：番茄锅底、招牌烧腊">
-          </div>
-          <div class="md:col-span-2">
-            <label class="block text-sm font-medium text-gray-500 mb-1">备注</label>
-            <textarea name="desc" class="input-ios" rows="2" placeholder="请输入备注（选填）"></textarea>
-          </div>
-        </div>
-        <div class="flex gap-3 mt-4 justify-end">
-          <button type="button" id="cancelRestaurantBtn" class="btn-ios-outline">取消</button>
-          <button type="submit" class="btn-ios">保存餐厅</button>
-        </div>
-      </form>
-      <!-- 餐厅列表 -->
-      <div id="restaurantList" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-        <!-- JS动态生成餐厅卡片 -->
-        <div class="col-span-1 sm:col-span-2 lg:col-span-3 xl:col-span-4 flex items-center justify-center py-8 text-gray-400">
-          <i class="fa-solid fa-utensils text-4xl mb-2 opacity-30"></i>
-          <p>暂无餐厅数据，点击「添加餐厅」开始录入吧～</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- 景点模块 -->
-    <section id="scenic" class="tab-content hidden">
-      <div class="flex justify-between items-center mb-4">
-        <h2 class="text-xl font-bold flex items-center gap-2">
-          <i class="fa-solid fa-mountain-sun text-primary"></i>景点门票管理
-        </h2>
-        <button id="addScenicBtn" class="btn-ios flex items-center">
-          <i class="fa-solid fa-plus mr-1"></i>添加景点
-        </button>
-      </div>
-      <!-- 景点添加表单 -->
-      <form id="scenicForm" class="card-ios p-4 mb-6 hidden">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label class="block text-sm font-medium text-gray-500 mb-1">景点名称 <span class="text-red-500">*</span></label>
-            <input type="text" name="scenicName" class="input-ios" placeholder="如：XX公园、XX古镇" required>
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-500 mb-1">所属城市 <span class="text-red-500">*</span></label>
-            <input type="text" name="city" class="input-ios" placeholder="如：天津、蓟州区、北京" required>
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-500 mb-1">具体地址</label>
-            <input type="text" name="address" class="input-ios" placeholder="如：XX区XX路XX号">
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-500 mb-1">门票价格（¥）<span class="text-red-500">*</span></label>
-            <input type="number" name="ticketPrice" class="input-ios" placeholder="免费填0" min="0" step="0.01" required>
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-500 mb-1">评分</label>
-            <select name="score" class="input-ios">
-              <option value="5">★★★★★</option>
-              <option value="4.5">★★★★☆</option>
-              <option value="4">★★★★</option>
-              <option value="3.5">★★★☆</option>
-              <option value="3">★★★</option>
-            </select>
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-500 mb-1">游玩时长（小时）</label>
-            <input type="number" name="playTime" class="input-ios" placeholder="如：2、3.5" min="0" step="0.5">
-          </div>
-          <div class="md:col-span-2">
-            <label class="block text-sm font-medium text-gray-500 mb-1">备注</label>
-            <textarea name="desc" class="input-ios" rows="2" placeholder="请输入备注（选填）"></textarea>
-          </div>
-        </div>
-        <div class="flex gap-3 mt-4 justify-end">
-          <button type="button" id="cancelScenicBtn" class="btn-ios-outline">取消</button>
-          <button type="submit" class="btn-ios">保存景点</button>
-        </div>
-      </form>
-      <!-- 景点列表 -->
-      <div id="scenicList" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-        <!-- JS动态生成景点卡片 -->
-        <div class="col-span-1 sm:col-span-2 lg:col-span-3 xl:col-span-4 flex items-center justify-center py-8 text-gray-400">
-          <i class="fa-solid fa-mountain-sun text-4xl mb-2 opacity-30"></i>
-          <p>暂无景点数据，点击「添加景点」开始录入吧～</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- 城市路线模块：核心模块 -->
-    <section id="route" class="tab-content hidden">
-      <div class="flex justify-between items-center mb-6">
-        <h2 class="text-xl font-bold flex items-center gap-2">
-          <i class="fa-solid fa-map-location-dot text-primary"></i>城市路线规划（长春→蓟州区）
-        </h2>
-        <div class="text-sm text-gray-500">
-          路线主线自动同步火车/飞机交通信息 | 节点可添加景点/餐厅分支
-        </div>
-      </div>
-      <!-- 路线可视化：主线+分支 -->
-      <div class="card-ios p-6 mb-6">
-        <div class="flex flex-col md:flex-row items-start md:items-center justify-center relative">
-          <!-- 路线主线：长春 → 中转地 → 天津 → 蓟州区 -->
-          <div id="routeMain" class="w-full flex flex-col md:flex-row items-center justify-between gap-6 md:gap-0 relative">
-            <!-- 动态生成主线节点：JS实现 -->
-          </div>
-        </div>
-      </div>
-      <!-- 自定义分类列表 -->
-      <div class="mb-4">
-        <h3 class="text-lg font-semibold flex items-center gap-2 mb-3">
-          <i class="fa-solid fa-list-ul text-primary"></i>自定义预算分类
-        </h3>
-        <div id="customList" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          <!-- JS动态生成自定义分类卡片 -->
-          <div class="col-span-1 sm:col-span-2 lg:col-span-3 flex items-center justify-center py-4 text-gray-400 text-sm">
-            暂无自定义分类，点击右上角「自定义」添加吧～
-          </div>
-        </div>
-      </div>
-    </section>
-  </main>
-
-  <!-- 底部信息 -->
-  <footer class="bg-white shadow-sm py-4 mt-6">
-    <div class="container mx-auto px-4 text-center text-gray-400 text-sm">
-      <p>旅行预算管理 © 2025 | iOS风格自适应版 | 数据存储于本地浏览器，请勿清除缓存</p>
-    </div>
-  </footer>
-
-  <script>
-    // ===================== 核心工具函数：本地存储 =====================
-    const Storage = {
-      // 获取数据
-      get(key) {
-        const data = localStorage.getItem(`travel_${key}`);
-        return data ? JSON.parse(data) : [];
-      },
-      // 保存数据
-      set(key, data) {
-        localStorage.setItem(`travel_${key}`, JSON.stringify(data));
-        // 数据变化后刷新所有页面
-        renderAll();
-      },
-      // 删除数据
-      remove(key, id) {
-        const data = this.get(key);
-        const newData = data.filter(item => item.id !== id);
-        this.set(key, newData);
-      },
-      // 生成唯一ID：时间戳
-      genId() {
-        return new Date().getTime();
-      }
-    };
-
-    // ===================== 全局变量 =====================
-    // 中转地列表：长春→蓟州区专用
-    const transferCities = ['秦皇岛', '天津西', '北京'];
-    // 路线主节点：固定长春→中转地→天津→蓟州区
-    const routeMainCities = ['长春', '中转地', '天津', '蓟州区'];
-
-    // ===================== 页面初始化：标签切换 + 事件绑定 =====================
-    document.addEventListener('DOMContentLoaded', function() {
-      // 标签切换：电脑/平板
-      const tabLinks = document.querySelectorAll('.tab-link');
-      const tabContents = document.querySelectorAll('.tab-content');
-      tabLinks.forEach(link => {
-        link.addEventListener('click', function(e) {
-          e.preventDefault();
-          // 移除所有激活状态
-          tabLinks.forEach(l => l.classList.remove('tab-active'));
-          tabContents.forEach(c => c.classList.add('hidden'));
-          // 添加当前激活状态
-          this.classList.add('tab-active');
-          const target = this.getAttribute('href').slice(1);
-          document.getElementById(target).classList.remove('hidden');
-          // 关闭汉堡菜单
-          document.getElementById('hamburgerMenu').classList.add('hidden');
-        });
-      });
-
-      // 汉堡菜单：手机端
-      const hamburgerBtn = document.getElementById('hamburgerBtn');
-      const hamburgerMenu = document.getElementById('hamburgerMenu');
-      const hamburgerTabs = document.querySelectorAll('.hamburger-tab');
-      hamburgerBtn.addEventListener('click', () => {
-        hamburgerMenu.classList.toggle('hidden');
-      });
-      hamburgerTabs.forEach(tab => {
-        tab.addEventListener('click', function() {
-          const target = this.getAttribute('href')?.slice(1) || (this.textContent.includes('对比') ? 'compare' : '');
-          if (target === 'compare') {
-            openCompareModal();
-          } else if (target) {
-            // 切换标签
-            tabLinks.forEach(l => l.classList.remove('tab-active'));
-            tabContents.forEach(c => c.classList.add('hidden'));
-            document.querySelector(`.tab-link[href="#${target}"]`).classList.add('tab-active');
-            document.getElementById(target).classList.remove('hidden');
-          }
-          hamburgerMenu.classList.add('hidden');
-        });
-      });
-
-      // 对比弹窗
-      document.getElementById('compareBtn').addEventListener('click', openCompareModal);
-      document.getElementById('closeCompareModal').addEventListener('click', () => {
-        document.getElementById('compareModal').classList.add('hidden');
-      });
-      // 对比类型切换
-      document.querySelectorAll('.compare-type-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
-          const type = this.getAttribute('data-type');
-          // 切换按钮状态
-          document.querySelectorAll('.compare-type-btn').forEach(b => {
-            b.classList.remove('btn-ios');
-            b.classList.add('btn-ios-outline');
-          });
-          this.classList.remove('btn-ios-outline');
-          this.classList.add('btn-ios');
-          // 切换表格
-          document.getElementById('trainCompareTable').classList.toggle('hidden', type !== 'train');
-          document.getElementById('planeCompareTable').classList.toggle('hidden', type !== 'plane');
-          // 刷新对比数据
-          type === 'train' ? renderTrainCompare() : renderPlaneCompare();
-        });
-      });
-
-      // 自定义分类弹窗
-      document.getElementById('addCustomBtn').addEventListener('click', () => {
-        document.getElementById('customModal').classList.remove('hidden');
-      });
-      document.getElementById('closeCustomModal').addEventListener('click', () => {
-        document.getElementById('customModal').classList.add('hidden');
-        document.getElementById('customForm').reset();
-      });
-      // 自定义分类表单提交
-      document.getElementById('customForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-        const formData = new FormData(this);
-        const custom = {
-          id: Storage.genId(),
-          name: formData.get('customName'),
-          icon: formData.get('customIcon'),
-          price: Number(formData.get('customPrice')),
-          desc: formData.get('customDesc') || ''
-        };
-        const customs = Storage.get('custom');
-        customs.push(custom);
-        Storage.set('custom', customs);
-        this.reset();
-        document.getElementById('customModal').classList.add('hidden');
-        alert('自定义分类添加成功！');
-      });
-
-      // ===================== 各模块表单事件绑定 =====================
-      // 1. 火车模块
-      bindFormEvent('train', ['trainNo', 'startCity', 'endCity', 'startTime', 'endTime', 'carriage', 'seat', 'price', 'isTransfer', 'transferTo', 'desc']);
-      // 中转车次勾选显示输入框
-      document.querySelector('input[name="isTransfer"]').addEventListener('change', function() {
-        const transferInput = document.querySelector('input[name="transferTo"]');
-        this.checked ? transferInput.classList.remove('hidden') : transferInput.classList.add('hidden');
-      });
-
-      // 2. 飞机模块
-      bindFormEvent('plane', ['planeNo', 'airline', 'startCity', 'endCity', 'startTime', 'endTime', 'seatLevel', 'price', 'isTransfer', 'transferTo', 'desc']);
-      document.querySelector('#planeForm input[name="isTransfer"]').addEventListener('change', function() {
-        const transferInput = document.querySelector('#planeForm input[name="transferTo"]');
-        this.checked ? transferInput.classList.remove('hidden') : transferInput.classList.add('hidden');
-      });
-
-      // 3. 酒店模块
-      bindFormEvent('hotel', ['hotelName', 'city', 'address', 'checkIn', 'checkOut', 'roomType', 'price', 'score', 'desc']);
-
-      // 4. 餐厅模块
-      bindFormEvent('restaurant', ['restName', 'city', 'address', 'perPrice', 'score', 'recommend', 'desc']);
-
-      // 5. 景点模块
-      bindFormEvent('scenic', ['scenicName', 'city', 'address', 'ticketPrice', 'score', 'playTime', 'desc']);
-
-      // 初始化渲染所有页面
-      renderAll();
-      // 默认显示路线页面
-      tabLinks.forEach(l => l.classList.remove('tab-active'));
-      tabContents.forEach(c => c.classList.add('hidden'));
-      document.querySelector('.tab-link[href="#route"]').classList.add('tab-active');
-      document.getElementById('route').classList.remove('hidden');
-    });
-
-    // ===================== 通用函数：表单事件绑定 =====================
-    function bindFormEvent(type, fields) {
-      const addBtn = document.getElementById(`add${type.charAt(0).toUpperCase() + type.slice(1)}Btn`);
-      const cancelBtn = document.getElementById(`cancel${type.charAt(0).toUpperCase() + type.slice(1)}Btn`);
-      const form = document.getElementById(`${type}Form`);
-      const formFields = fields.map(f => form.querySelector(`input[name="${f}"]`) || form.querySelector(`select[name="${f}"]`));
-
-      // 显示/隐藏表单
-      addBtn.addEventListener('click', () => {
-        form.classList.remove('hidden');
-        form.reset();
-        // 重置中转输入框
-        const isTransfer = form.querySelector('input[name="isTransfer"]');
-        if (isTransfer) {
-          isTransfer.checked = false;
-          const transferTo = form.querySelector('input[name="transferTo"]');
-          transferTo.classList.add('hidden');
-        }
-      });
-      cancelBtn.addEventListener('click', () => {
-        form.classList.add('hidden');
-        form.reset();
-      });
-
-      // 表单提交
-      form.addEventListener('submit', function(e) {
-        e.preventDefault();
-        const formData = new FormData(this);
-        const data = { id: Storage.genId() };
-        fields.forEach(field => {
-          const value = formData.get(field);
-          // 处理布尔值（中转车次）
-          if (field === 'isTransfer') {
-            data[field] = formData.get(field) === 'on';
-          }
-          // 处理数字（价格、评分等）
-          else if (['price', 'perPrice', 'ticketPrice', 'score', 'playTime'].includes(field)) {
-            data[field] = value ? Number(value) : 0;
-          }
-          else {
-            data[field] = value || '';
-          }
-        });
-        // 保存数据
-        const list = Storage.get(type);
-        list.push(data);
-        Storage.set(type, list);
-        // 隐藏表单并重置
-        form.classList.add('hidden');
-        form.reset();
-        alert(`${type === 'train' ? '车次' : type === 'plane' ? '航班' : type === 'hotel' ? '酒店' : type === 'restaurant' ? '餐厅' : '景点'}添加成功！`);
-      });
-    }
-
-    // ===================== 通用函数：渲染所有页面 =====================
-    function renderAll() {
-      renderTrain();
-      renderPlane();
-      renderHotel();
-      renderRestaurant();
-      renderScenic();
-      renderRoute();
-      renderCustom();
-      renderTrainCompare();
-      renderPlaneCompare();
-    }
-
-    // ===================== 模块渲染：火车 =====================
-    function renderTrain() {
-      const trainList = document.getElementById('trainList');
-      const trains = Storage.get('train');
-      if (trains.length === 0) {
-        trainList.innerHTML = `
-          <div class="col-span-1 md:col-span-2 lg:col-span-3 flex flex-col items-center justify-center py-8 text-gray-400">
-            <i class="fa-solid fa-train text-4xl mb-2 opacity-30"></i>
-            <p>暂无火车车次数据，点击「添加车次」开始录入吧～</p>
-          </div>
-        `;
-        return;
-      }
-      trainList.innerHTML = trains.map(train => `
-        <div class="card-ios p-4 hover:translate-y-[-2px] transition-transform duration-200">
-          <div class="flex justify-between items-start mb-2">
-            <h3 class="text-lg font-bold text-primary">${train.trainNo}</h3>
-            <button class="text-gray-400 hover:text-red-500" onclick="Storage.remove('train', ${train.id})">
-              <i class="fa-solid fa-trash"></i>
-            </button>
-          </div>
-          <div class="grid grid-cols-2 gap-2 text-sm">
-            <div><span class="text-gray-500">始发地：</span>${train.startCity}</div>
-            <div><span class="text-gray-500">目的地：</span>${train.endCity}</div>
-            <div><span class="text-gray-500">出发时间：</span>${formatTime(train.startTime)}</div>
-            <div><span class="text-gray-500">到站时间：</span>${formatTime(train.endTime)}</div>
-            <div><span class="text-gray-500">车厢/座位：</span>${train.carriage || '未填写'}/${train.seat}</div>
-            <div><span class="text-gray-500">票价：</span>¥${train.price.toFixed(2)}</div>
-            ${train.isTransfer ? `<div class="col-span-2 text-xs text-primary bg-primary/10 py-1 px-2 rounded-ios-sm">
-              📍 中转车次：前往${train.transferTo}
-            </div>` : ''}
-            ${train.desc ? `<div class="col-span-2 mt-2 text-sm"><span class="text-gray-500">备注：</span>${train.desc}</div>` : ''}
-          </div>
-        </div>
-      `).join('');
-    }
-
-    // ===================== 模块渲染：飞机 =====================
-    function renderPlane() {
-      const planeList = document.getElementById('planeList');
-      const planes = Storage.get('plane');
-      if (planes.length === 0) {
-        planeList.innerHTML = `
-          <div class="col-span-1 md:col-span-2 lg:col-span-3 flex flex-col items-center justify-center py-8 text-gray-400">
-            <i class="fa-solid fa-plane text-4xl mb-2 opacity-30"></i>
-            <p>暂无飞机航班数据，点击「添加航班」开始录入吧～</p>
-          </div>
-        `;
-        return;
-      }
-      planeList.innerHTML = planes.map(plane => `
-        <div class="card-ios p-4 hover:translate-y-[-2px] transition-transform duration-200">
-          <div class="flex justify-between items-start mb-2">
-            <h3 class="text-lg font-bold text-primary">${plane.planeNo} | ${plane.airline}</h3>
-            <button class="text-gray-400 hover:text-red-500" onclick="Storage.remove('plane', ${plane.id})">
-              <i class="fa-solid fa-trash"></i>
-            </button>
-          </div>
-          <div class="grid grid-cols-2 gap-2 text-sm">
-            <div><span class="text-gray-500">出发地：</span>${plane.startCity}</div>
-            <div><span class="text-gray-500">目的地：</span>${plane.endCity}</div>
-            <div><span class="text-gray-500">起飞时间：</span>${formatTime(plane.startTime)}</div>
-            <div><span class="text-gray-500">降落时间：</span>${formatTime(plane.endTime)}</div>
-            <div><span class="text-gray-500">坐席等级：</span>${plane.seatLevel}</div>
-            <div><span class="text-gray-500">票价：</span>¥${plane.price.toFixed(2)}</div>
-            ${plane.isTransfer ? `<div class="col-span-2 text-xs text-primary bg-primary/10 py-1 px-2 rounded-ios-sm">
-              📍 中转航班：前往${plane.transferTo}
-            </div>` : ''}
-            ${plane.desc ? `<div class="col-span-2 mt-2 text-sm"><span class="text-gray-500">备注：</span>${plane.desc}</div>` : ''}
-          </div>
-        </div>
-      `).join('');
-    }
-
-    // ===================== 模块渲染：酒店 =====================
-    function renderHotel() {
-      const hotelList = document.getElementById('hotelList');
-      const hotels = Storage.get('hotel');
-      if (hotels.length === 0) {
-        hotelList.innerHTML = `
-          <div class="col-span-1 md:col-span-2 lg:col-span-3 flex flex-col items-center justify-center py-8 text-gray-400">
-            <i class="fa-solid fa-hotel text-4xl mb-2 opacity-30"></i>
-            <p>暂无酒店数据，点击「添加酒店」开始录入吧～</p>
-          </div>
-        `;
-        return;
-      }
-      hotelList.innerHTML = hotels.map(hotel => `
-        <div class="card-ios p-4 hover:translate-y-[-2px] transition-transform duration-200">
-          <div class="flex justify-between items-start mb-2">
-            <h3 class="text-lg font-bold text-primary">${hotel.hotelName}</h3>
-            <button class="text-gray-400 hover:text-red-500" onclick="Storage.remove('hotel', ${hotel.id})">
-              <i class="fa-solid fa-trash"></i>
-            </button>
-          </div>
-          <div class="grid grid-cols-2 gap-2 text-sm">
-            <div><span class="text-gray-500">城市：</span>${hotel.city}</div>
-            <div><span class="text-gray-500">位置：</span>${hotel.address || '未填写'}</div>
-            <div><span class="text-gray-500">入住：</span>${formatDate(hotel.checkIn)}</div>
-            <div><span class="text-gray-500">离店：</span>${formatDate(hotel.checkOut)}</div>
-            <div><span class="text-gray-500">房型：</span>${hotel.roomType}</div>
-            <div><span class="text-gray-500">价格/晚：</span>¥${hotel.price.toFixed(2)}</div>
-            <div><span class="text-gray-500">评分：</span>${hotel.score}★</div>
-            <div><span class="text-gray-500">入住天数：</span>${calcDays(hotel.checkIn, hotel.checkOut)}天</div>
-            ${hotel.desc ? `<div class="col-span-2 mt-2 text-sm"><span class="text-gray-500">备注：</span>${hotel.desc}</div>` : ''}
-          </div>
-        </div>
-      `).join('');
-    }
-
-    // ===================== 模块渲染：餐厅 =====================
-    function renderRestaurant() {
-      const restaurantList = document.getElementById('restaurantList');
-      const restaurants = Storage.get('restaurant');
-      if (restaurants.length === 0) {
-        restaurantList.innerHTML = `
-          <div class="col-span-1 sm:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col items-center justify-center py-8 text-gray-400">
-            <i class="fa-solid fa-utensils text-4xl mb-2 opacity-30"></i>
-            <p>暂无餐厅数据，点击「添加餐厅」开始录入吧～</p>
-          </div>
-        `;
-        return;
-      }
-      restaurantList.innerHTML = restaurants.map(rest => `
-        <div class="card-ios p-4 hover:translate-y-[-2px] transition-transform duration-200">
-          <div class="flex justify-between items-start mb-2">
-            <h3 class="font-bold text-primary">${rest.restName}</h3>
-            <button class="text-gray-400 hover:text-red-500" onclick="Storage.remove('restaurant', ${rest.id})">
-              <i class="fa-solid fa-trash text-xs"></i>
-            </button>
-          </div>
-          <div class="text-sm space-y-1">
-          <p><span class="text-gray-500">城市：</span>${rest.city}</p>
-          <p><span class="text-gray-500">地址：</span>${rest.address || '未填写'}</p>
-          <p><span class="text-gray-500">人均：</span>¥${rest.perPrice.toFixed(2)}</p>
-          <p><span class="text-gray-500">评分：</span>${rest.score}★</p>
-          ${rest.recommend ? `<p><span class="text-gray-500">推荐：</span>${rest.recommend}</p>` : ''}
-          ${rest.desc ? `<p class="mt-1 text-xs text-gray-500">${rest.desc}</p>` : ''}
-        </div>
-      </div>
-      `).join('');
-    }
-
-    // ===================== 模块渲染：景点 =====================
-    function renderScenic() {
-      const scenicList = document.getElementById('scenicList');
-      const scenics = Storage.get('scenic');
-      if (scenics.length === 0) {
-        scenicList.innerHTML = `
-          <div class="col-span-1 sm:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col items-center justify-center py-8 text-gray-400">
-            <i class="fa-solid fa-mountain-sun text-4xl mb-2 opacity-30"></i>
-            <p>暂无景点数据，点击「添加景点」开始录入吧～</p>
-          </div>
-        `;
-        return;
-      }
-      scenicList.innerHTML = scenics.map(scenic => `
-        <div class="card-ios p-4 hover:translate-y-[-2px] transition-transform duration-200">
-          <div class="flex justify-between items-start mb-2">
-            <h3 class="font-bold text-primary">${scenic.scenicName}</h3>
-            <button class="text-gray-400 hover:text-red-500" onclick="Storage.remove('scenic', ${scenic.id})">
-              <i class="fa-solid fa-trash text-xs"></i>
-            </button>
-          </div>
-          <div class="text-sm space-y-1">
-            <p><span class="text-gray-500">城市：</span>${scenic.city}</p>
-            <p><span class="text-gray-500">地址：</span>${scenic.address || '未填写'}</p>
-            <p><span class="text-gray-500">门票：</span>¥${scenic.ticketPrice.toFixed(2)}</p>
-            <p><span class="text-gray-500">评分：</span>${scenic.score}★</p>
-            ${scenic.playTime ? `<p><span class="text-gray-500">游玩：</span>${scenic.playTime}小时</p>` : ''}
-            ${scenic.desc ? `<p class="mt-1 text-xs text-gray-500">${scenic.desc}</p>` : ''}
-          </div>
-        </div>
-      `).join('');
-    }
-
-    // ===================== 模块渲染：城市路线（核心）=====================
-    function renderRoute() {
-      const routeMain = document.getElementById('routeMain');
-      const trains = Storage.get('train');
-      const planes = Storage.get('plane');
-      const scenics = Storage.get('scenic');
-      const restaurants = Storage.get('restaurant');
-      // 过滤中转交通数据：长春→中转地、中转地→天津
-      const transferTrains = trains.filter(t => t.isTransfer);
-      const transferPlanes = planes.filter(t => t.isTransfer);
-
-      // 生成路线主节点：长春 → 中转地 → 天津 → 蓟州区
-      routeMain.innerHTML = routeMainCities.map((city, index) => {
-        // 获取当前城市的交通/景点/餐厅数据
-        let trafficHtml = '';
-        let scenicHtml = '';
-        let restaurantHtml = '';
-        let nodeClass = 'flex flex-col items-center w-full md:w-1/4';
-
-        // 1. 长春节点：仅展示长春→中转地的交通
-        if (city === '长春') {
-          const toTransfer = [...transferTrains, ...transferPlanes].filter(t => t.startCity === '长春');
-          trafficHtml = toTransfer.length > 0 ? `
-            <div class="mt-2 w-full bg-light rounded-ios-sm p-2 text-xs">
-              <p class="font-medium text-center mb-1">出发交通</p>
-              ${toTransfer.map(t => `
-                <div class="flex justify-between items-center py-1 border-b border-gray-100 last:border-0">
-                  <span>${t.trainNo ? `🚞 ${t.trainNo}` : `✈️ ${t.planeNo}(${t.airline})`}</span>
-                  <span>${t.endCity} | ¥${t.price.toFixed(2)}</span>
-                </div>
-              `).join('')}
-            </div>
-          ` : '<p class="mt-2 text-xs text-gray-400">暂无出发交通数据</p>';
-        }
-
-        // 2. 中转地节点：展示可选中转地+长春→中转、中转→天津的交通
-        if (city === '中转地') {
-          trafficHtml = `
-            <div class="mt-2 w-full bg-light rounded-ios-sm p-2 text-xs">
-              <p class="font-medium text-center mb-1">中转选择（${transferCities.join(' / ')}）</p>
-              ${transferTrains.length + transferPlanes.length > 0 ? `
-                <p class="text-center text-primary text-xs mb-1">已添加${transferTrains.length}车次+${transferPlanes.length}航班</p>
-              ` : '<p class="text-center text-gray-400 text-xs">暂无中转交通数据</p>'}
-            </div>
-          `;
-        }
-
-        // 3. 天津节点：展示中转地→天津的交通
-        if (city === '天津') {
-          const toTianjin = [...transferTrains, ...transferPlanes].filter(t => t.endCity === '天津' || t.transferTo === '天津');
-          trafficHtml = toTianjin.length > 0 ? `
-            <div class="mt-2 w-full bg-light rounded-ios-sm p-2 text-xs">
-              <p class="font-medium text-center mb-1">抵达交通</p>
-              ${toTianjin.map(t => `
-                <div class="flex justify-between items-center py-1 border-b border-gray-100 last:border-0">
-                  <span>${t.trainNo ? `🚞 ${t.trainNo}` : `✈️ ${t.planeNo}(${t.airline})`}</span>
-                  <span>${t.startCity} | ¥${t.price.toFixed(2)}</span>
-                </div>
-              `).join('')}
-            </div>
-          ` : '<p class="mt-2 text-xs text-gray-400">暂无抵达交通数据</p>';
-        }
-
-        // 4. 所有节点：展示对应城市的景点+餐厅（分支）+ 添加按钮
-        const cityScenics = scenics.filter(s => s.city === city || (city === '中转地' && transferCities.includes(s.city)));
-        const cityRestaurants = restaurants.filter(r => r.city === city || (city === '中转地' && transferCities.includes(r.city)));
+<body class="bg-gray-100 min-h-screen p-4 md:p-8">
+    <div class="max-w-7xl mx-auto">
+        <h1 class="text-3xl font-bold text-center mb-8 text-gray-800">密码管理器APP原型设计</h1>
         
-        // 景点分支
-        scenicHtml = `
-          <div class="mt-3 w-full">
-            <div class="flex justify-between items-center text-xs mb-1">
-              <span class="font-medium flex items-center gap-1"><i class="fa-solid fa-mountain-sun text-primary"></i>景点</span>
-              <button class="text-primary hover:underline" onclick="openScenicForm('${city === '中转地' ? '秦皇岛' : city}')">+添加</button>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <!-- 1. 注册/登录界面 -->
+            <div class="app-container animate-fade-in">
+                <div class="app-header">
+                    <h2 class="text-xl font-bold">密码管理器</h2>
+                </div>
+                <div class="app-body">
+                    <div class="text-center mb-8">
+                        <div class="w-20 h-20 bg-primary rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fa fa-lock text-white text-3xl"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold text-gray-800">欢迎使用</h3>
+                        <p class="text-gray-600">安全管理您的所有密码</p>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <label class="block text-gray-700 mb-2">电子邮箱</label>
+                        <input type="email" class="input-field" placeholder="请输入您的邮箱">
+                    </div>
+                    
+                    <div class="mb-6">
+                        <label class="block text-gray-700 mb-2">主密码</label>
+                        <input type="password" class="input-field" placeholder="请设置您的主密码">
+                    </div>
+                    
+                    <div class="flex justify-between mb-6">
+                        <label class="flex items-center">
+                            <input type="checkbox" class="mr-2">
+                            <span class="text-gray-700">记住我</span>
+                        </label>
+                        <a href="#" class="text-primary">忘记密码?</a>
+                    </div>
+                    
+                    <button class="btn btn-primary w-full mb-4">登录</button>
+                    <button class="btn btn-outline w-full mb-6">注册新账号</button>
+                    
+                    <div class="relative">
+                        <div class="absolute inset-0 flex items-center">
+                            <div class="w-full border-t border-gray-300"></div>
+                        </div>
+                        <div class="relative flex justify-center text-sm">
+                            <span class="px-2 bg-white text-gray-500">或使用生物识别</span>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6 text-center">
+                        <button class="btn btn-outline w-full flex items-center justify-center">
+                            <i class="fa fa-fingerprint biometric-icon mr-2"></i>
+                            <span>使用指纹解锁</span>
+                        </button>
+                    </div>
+                </div>
             </div>
-            <div class="grid grid-cols-2 gap-1">
-              ${cityScenics.length > 0 ? cityScenics.map(s => `
-                <div class="bg-light rounded-ios-sm p-1 text-xs">${s.scenicName} ¥${s.ticketPrice.toFixed(2)}</div>
-              `).join('') : '<span class="col-span-2 text-gray-400">暂无景点</span>'}
+            
+            <!-- 2. 主界面/密码列表 -->
+            <div class="app-container animate-fade-in" style="animation-delay: 0.1s;">
+                <div class="app-header">
+                    <button id="menu-toggle" class="text-white">
+                        <i class="fa fa-bars text-xl"></i>
+                    </button>
+                    <h2 class="text-xl font-bold">我的密码</h2>
+                    <button class="text-white">
+                        <i class="fa fa-search text-xl"></i>
+                    </button>
+                </div>
+                <div class="app-body">
+                    <!-- 搜索栏 -->
+                    <div class="relative mb-4">
+                        <input type="text" class="input-field pl-10" placeholder="搜索密码...">
+                        <i class="fa fa-search absolute left-3 top-3 text-gray-400"></i>
+                    </div>
+                    
+                    <!-- 分类标签 -->
+                    <div class="flex overflow-x-auto mb-4 pb-2">
+                        <button class="btn btn-primary mr-2 whitespace-nowrap">全部</button>
+                        <button class="btn btn-outline mr-2 whitespace-nowrap">社交媒体</button>
+                        <button class="btn btn-outline mr-2 whitespace-nowrap">金融账户</button>
+                        <button class="btn btn-outline mr-2 whitespace-nowrap">电子邮件</button>
+                        <button class="btn btn-outline whitespace-nowrap">其他</button>
+                    </div>
+                    
+                    <!-- 密码卡片列表 -->
+                    <div class="password-card password-card-social">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <div class="flex items-center">
+                                    <div class="w-10 h-10 bg-blue-400 rounded-full flex items-center justify-center mr-3">
+                                        <i class="fa fa-facebook text-white"></i>
+                                    </div>
+                                    <h4 class="font-bold">Facebook</h4>
+                                </div>
+                                <p class="text-gray-600 mt-1">example@facebook.com</p>
+                            </div>
+                            <div class="flex">
+                                <button class="text-gray-500 hover:text-primary mr-2">
+                                    <i class="fa fa-eye"></i>
+                                </button>
+                                <button class="text-gray-500 hover:text-primary">
+                                    <i class="fa fa-ellipsis-v"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="mt-3 flex justify-between items-center">
+                            <div class="text-gray-500">••••••••••••••••</div>
+                            <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">社交媒体</span>
+                        </div>
+                    </div>
+                    
+                    <div class="password-card password-card-finance">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <div class="flex items-center">
+                                    <div class="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center mr-3">
+                                        <i class="fa fa-credit-card text-white"></i>
+                                    </div>
+                                    <h4 class="font-bold">网上银行</h4>
+                                </div>
+                                <p class="text-gray-600 mt-1">6222 **** **** 1234</p>
+                            </div>
+                            <div class="flex">
+                                <button class="text-gray-500 hover:text-primary mr-2">
+                                    <i class="fa fa-eye"></i>
+                                </button>
+                                <button class="text-gray-500 hover:text-primary">
+                                    <i class="fa fa-ellipsis-v"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="mt-3 flex justify-between items-center">
+                            <div class="text-gray-500">••••••••••••••••</div>
+                            <span class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">金融账户</span>
+                        </div>
+                    </div>
+                    
+                    <div class="password-card password-card-email">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <div class="flex items-center">
+                                    <div class="w-10 h-10 bg-yellow-500 rounded-full flex items-center justify-center mr-3">
+                                        <i class="fa fa-envelope text-white"></i>
+                                    </div>
+                                    <h4 class="font-bold">Gmail</h4>
+                                </div>
+                                <p class="text-gray-600 mt-1">user@gmail.com</p>
+                            </div>
+                            <div class="flex">
+                                <button class="text-gray-500 hover:text-primary mr-2">
+                                    <i class="fa fa-eye"></i>
+                                </button>
+                                <button class="text-gray-500 hover:text-primary">
+                                    <i class="fa fa-ellipsis-v"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="mt-3 flex justify-between items-center">
+                            <div class="text-gray-500">••••••••••••••••</div>
+                            <span class="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded">电子邮件</span>
+                        </div>
+                    </div>
+                    
+                    <!-- 添加按钮 -->
+                    <div class="fixed bottom-4 right-4">
+                        <button class="w-14 h-14 bg-primary rounded-full flex items-center justify-center shadow-lg text-white text-2xl hover:bg-blue-600 transition-all duration-300">
+                            <i class="fa fa-plus"></i>
+                        </button>
+                    </div>
+                </div>
             </div>
-          </div>
-        `;
-
-        // 餐厅分支
-        restaurantHtml = `
-          <div class="mt-2 w-full">
-            <div class="flex justify-between items-center text-xs mb-1">
-              <span class="font-medium flex items-center gap-1"><i class="fa-solid fa-utensils text-primary"></i>餐厅</span>
-              <button class="text-primary hover:underline" onclick="openRestaurantForm('${city === '中转地' ? '秦皇岛' : city}')">+添加</button>
+            
+            <!-- 3. 添加/编辑密码界面 -->
+            <div class="app-container animate-fade-in" style="animation-delay: 0.2s;">
+                <div class="app-header">
+                    <button class="text-white">
+                        <i class="fa fa-arrow-left text-xl"></i>
+                    </button>
+                    <h2 class="text-xl font-bold">添加新密码</h2>
+                    <button class="text-white">
+                        <i class="fa fa-check text-xl"></i>
+                    </button>
+                </div>
+                <div class="app-body">
+                    <div class="mb-6">
+                        <label class="block text-gray-700 mb-2">网站/应用名称</label>
+                        <input type="text" class="input-field" placeholder="例如: Facebook, Gmail等">
+                    </div>
+                    
+                    <div class="mb-6">
+                        <label class="block text-gray-700 mb-2">网址 (可选)</label>
+                        <input type="url" class="input-field" placeholder="https://www.example.com">
+                    </div>
+                    
+                    <div class="mb-6">
+                        <label class="block text-gray-700 mb-2">用户名/邮箱</label>
+                        <input type="text" class="input-field" placeholder="请输入您的用户名或邮箱">
+                    </div>
+                    
+                    <div class="mb-6">
+                        <div class="flex justify-between mb-2">
+                            <label class="text-gray-700">密码</label>
+                            <button class="text-primary">生成</button>
+                        </div>
+                        <div class="relative">
+                            <input type="password" class="input-field pr-10" placeholder="请输入密码">
+                            <button class="absolute right-3 top-3 text-gray-500">
+                                <i class="fa fa-eye-slash"></i>
+                            </button>
+                        </div>
+                        
+                        <div class="mt-2">
+                            <div class="flex justify-between text-sm mb-1">
+                                <span class="text-gray-600">密码强度</span>
+                                <span class="text-primary font-medium">强</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                <div class="password-strength-strong w-3/4"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <label class="block text-gray-700 mb-2">备注 (可选)</label>
+                        <textarea class="input-field h-24" placeholder="添加任何其他信息..."></textarea>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <label class="block text-gray-700 mb-2">分类</label>
+                        <div class="grid grid-cols-4 gap-2">
+                            <button class="p-3 border border-primary rounded-lg bg-blue-50 text-primary flex flex-col items-center">
+                                <i class="fa fa-globe text-xl mb-1"></i>
+                                <span class="text-xs">其他</span>
+                            </button>
+                            <button class="p-3 border border-gray-300 rounded-lg flex flex-col items-center">
+                                <i class="fa fa-facebook-square text-xl mb-1"></i>
+                                <span class="text-xs">社交</span>
+                            </button>
+                            <button class="p-3 border border-gray-300 rounded-lg flex flex-col items-center">
+                                <i class="fa fa-credit-card text-xl mb-1"></i>
+                                <span class="text-xs">金融</span>
+                            </button>
+                            <button class="p-3 border border-gray-300 rounded-lg flex flex-col items-center">
+                                <i class="fa fa-envelope text-xl mb-1"></i>
+                                <span class="text-xs">邮箱</span>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center justify-between">
+                        <label class="flex items-center">
+                            <input type="checkbox" class="mr-2">
+                            <span class="text-gray-700">自动填充</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" class="mr-2">
+                            <span class="text-gray-700">需要时通知</span>
+                        </label>
+                    </div>
+                </div>
             </div>
-            <div class="grid grid-cols-2 gap-1">
-              ${cityRestaurants.length > 0 ? cityRestaurants.map(r => `
-                <div class="bg-light rounded-ios-sm p-1 text-xs">${r.restName} ¥${r.perPrice.toFixed(2)}</div>
-              `).join('') : '<span class="col-span-2 text-gray-400">暂无餐厅</span>'}
+            
+            <!-- 4. 密码生成器界面 -->
+            <div class="app-container animate-fade-in" style="animation-delay: 0.3s;">
+                <div class="app-header">
+                    <button class="text-white">
+                        <i class="fa fa-arrow-left text-xl"></i>
+                    </button>
+                    <h2 class="text-xl font-bold">密码生成器</h2>
+                    <button class="text-white">
+                        <i class="fa fa-copy text-xl"></i>
+                    </button>
+                </div>
+                <div class="app-body">
+                    <div class="mb-6">
+                        <div class="flex justify-between mb-2">
+                            <label class="text-gray-700">生成的密码</label>
+                            <button class="text-primary">
+                                <i class="fa fa-refresh mr-1"></i> 重新生成
+                            </button>
+                        </div>
+                        <div class="relative">
+                            <input type="text" class="input-field pr-10" value="P@ssw0rd!2023" readonly>
+                            <button class="absolute right-3 top-3 text-gray-500">
+                                <i class="fa fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <label class="block text-gray-700 mb-2">密码长度</label>
+                        <div class="flex items-center">
+                            <input type="range" min="8" max="32" value="16" class="w-full mr-4">
+                            <span class="text-gray-700 font-medium w-8 text-center">16</span>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <label class="block text-gray-700 mb-2">包含字符</label>
+                        <div class="space-y-3">
+                            <label class="flex items-center justify-between">
+                                <div class="flex items-center">
+                                    <input type="checkbox" checked class="mr-2">
+                                    <span class="text-gray-700">大写字母 (A-Z)</span>
+                                </div>
+                                <span class="text-gray-500">ABCDEFGHIJKLMNOPQRSTUVWXYZ</span>
+                            </label>
+                            
+                            <label class="flex items-center justify-between">
+                                <div class="flex items-center">
+                                    <input type="checkbox" checked class="mr-2">
+                                    <span class="text-gray-700">小写字母 (a-z)</span>
+                                </div>
+                                <span class="text-gray-500">abcdefghijklmnopqrstuvwxyz</span>
+                            </label>
+                            
+                            <label class="flex items-center justify-between">
+                                <div class="flex items-center">
+                                    <input type="checkbox" checked class="mr-2">
+                                    <span class="text-gray-700">数字 (0-9)</span>
+                                </div>
+                                <span class="text-gray-500">0123456789</span>
+                            </label>
+                            
+                            <label class="flex items-center justify-between">
+                                <div class="flex items-center">
+                                    <input type="checkbox" checked class="mr-2">
+                                    <span class="text-gray-700">特殊字符</span>
+                                </div>
+                                <span class="text-gray-500">!@#$%^&*()_+-=[]{}|;:,.<>?</span>
+                            </label>
+                            
+                            <label class="flex items-center justify-between">
+                                <div class="flex items-center">
+                                    <input type="checkbox" class="mr-2">
+                                    <span class="text-gray-700">排除相似字符</span>
+                                </div>
+                                <span class="text-gray-500">i, l, 1, L, o, 0, O</span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-8">
+                        <button class="btn btn-primary w-full">使用此密码</button>
+                    </div>
+                </div>
             </div>
-          </div>
-        `;
-
-        // 节点样式：最后一个节点无连接线
-        const lineHtml = index < routeMainCities.length - 1 ? '<div class="route-line absolute top-10 left-1/2 w-0.5"></div>' : '';
-
-        return `
-          <div class="${nodeClass} relative">
-            <div class="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center route-node-active">
-              ${index + 1}
+            
+            <!-- 5. 密码详情界面 -->
+            <div class="app-container animate-fade-in" style="animation-delay: 0.4s;">
+                <div class="app-header">
+                    <button class="text-white">
+                        <i class="fa fa-arrow-left text-xl"></i>
+                    </button>
+                    <h2 class="text-xl font-bold">密码详情</h2>
+                    <button class="text-white">
+                        <i class="fa fa-pencil text-xl"></i>
+                    </button>
+                </div>
+                <div class="app-body">
+                    <div class="password-card password-card-social mb-6">
+                        <div class="flex items-center mb-4">
+                            <div class="w-12 h-12 bg-blue-400 rounded-full flex items-center justify-center mr-4">
+                                <i class="fa fa-facebook text-white text-2xl"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-bold">Facebook</h3>
+                                <p class="text-gray-600">社交媒体</p>
+                            </div>
+                        </div>
+                        
+                        <div class="space-y-4">
+                            <div>
+                                <p class="text-gray-500 text-sm">网址</p>
+                                <p class="font-medium">https://www.facebook.com</p>
+                            </div>
+                            
+                            <div>
+                                <p class="text-gray-500 text-sm">用户名</p>
+                                <p class="font-medium">example@facebook.com</p>
+                            </div>
+                            
+                            <div>
+                                <div class="flex justify-between items-center">
+                                    <p class="text-gray-500 text-sm">密码</p>
+                                    <button class="text-primary">
+                                        <i class="fa fa-eye mr-1"></i> 显示
+                                    </button>
+                                </div>
+                                <p class="font-medium">••••••••••••••••</p>
+                            </div>
+                            
+                            <div>
+                                <p class="text-gray-500 text-sm">备注</p>
+                                <p class="font-medium">个人Facebook账号，请勿分享</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card mb-4">
+                        <h4 class="font-bold mb-3">安全信息</h4>
+                        <div class="space-y-3">
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">创建时间</span>
+                                <span>2023-05-15</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">最后修改</span>
+                                <span>2023-10-20</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">密码强度</span>
+                                <span class="text-green-500 font-medium">强</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">建议更改</span>
+                                <span class="text-accent">30天后</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex space-x-4">
+                        <button class="btn btn-outline flex-1 flex items-center justify-center">
+                            <i class="fa fa-copy mr-2"></i> 复制密码
+                        </button>
+                        <button class="btn btn-outline flex-1 flex items-center justify-center">
+                            <i class="fa fa-keyboard-o mr-2"></i> 自动填充
+                        </button>
+                    </div>
+                    
+                    <button class="btn btn-accent w-full mt-4 flex items-center justify-center">
+                        <i class="fa fa-trash mr-2"></i> 删除密码
+                    </button>
+                </div>
             </div>
-            <p class="mt-1 font-medium">${city}</p>
-            ${trafficHtml}
-            ${scenicHtml}
-            ${restaurantHtml}
-            ${lineHtml}
-          </div>
-        `;
-      }).join('');
-    }
-
-    // ===================== 模块渲染：自定义分类 =====================
-    function renderCustom() {
-      const customList = document.getElementById('customList');
-      const customs = Storage.get('custom');
-      if (customs.length === 0) {
-        customList.innerHTML = `
-          <div class="col-span-1 sm:col-span-2 lg:col-span-3 flex items-center justify-center py-4 text-gray-400 text-sm">
-            暂无自定义分类，点击右上角「自定义」添加吧～
-          </div>
-        `;
-        return;
-      }
-      customList.innerHTML = customs.map(custom => `
-        <div class="card-ios p-4 flex items-center justify-between hover:translate-y-[-2px] transition-transform duration-200">
-          <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
-              <i class="fa-solid fa-${custom.icon}"></i>
+            
+            <!-- 6. 设置界面 -->
+            <div class="app-container animate-fade-in" style="animation-delay: 0.5s;">
+                <div class="app-header">
+                    <button class="text-white">
+                        <i class="fa fa-arrow-left text-xl"></i>
+                    </button>
+                    <h2 class="text-xl font-bold">设置</h2>
+                </div>
+                <div class="app-body">
+                    <div class="card mb-4">
+                        <h4 class="font-bold mb-3">安全设置</h4>
+                        <div class="space-y-4">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <p class="font-medium">生物识别解锁</p>
+                                    <p class="text-sm text-gray-600">使用指纹或面部识别快速解锁</p>
+                                </div>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" checked class="sr-only peer">
+                                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                                </label>
+                            </div>
+                            
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <p class="font-medium">自动锁定时间</p>
+                                    <p class="text-sm text-gray-600">应用在后台自动锁定的时间</p>
+                                </div>
+                                <span class="text-primary">5分钟</span>
+                            </div>
+                            
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <p class="font-medium">自动填充</p>
+                                    <p class="text-sm text-gray-600">自动为应用和网站填充密码</p>
+                                </div>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" checked class="sr-only peer">
+                                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card mb-4">
+                        <h4 class="font-bold mb-3">通知设置</h4>
+                        <div class="space-y-4">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <p class="font-medium">密码过期提醒</p>
+                                    <p class="text-sm text-gray-600">当密码需要更新时通知我</p>
+                                </div>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" checked class="sr-only peer">
+                                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                                </label>
+                            </div>
+                            
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <p class="font-medium">安全警报</p>
+                                    <p class="text-sm text-gray-600">当检测到安全风险时通知我</p>
+                                </div>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" checked class="sr-only peer">
+                                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card mb-4">
+                        <h4 class="font-bold mb-3">数据管理</h4>
+                        <div class="space-y-4">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <p class="font-medium">导出数据</p>
+                                    <p class="text-sm text-gray-600">将所有密码导出为CSV或JSON</p>
+                                </div>
+                                <i class="fa fa-chevron-right text-gray-400"></i>
+                            </div>
+                            
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <p class="font-medium">导入数据</p>
+                                    <p class="text-sm text-gray-600">从其他密码管理器导入数据</p>
+                                </div>
+                                <i class="fa fa-chevron-right text-gray-400"></i>
+                            </div>
+                            
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <p class="font-medium">备份</p>
+                                    <p class="text-sm text-gray-600">创建密码数据库的备份</p>
+                                </div>
+                                <i class="fa fa-chevron-right text-gray-400"></i>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <h4 class="font-bold mb-3">关于</h4>
+                        <div class="space-y-4">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <p class="font-medium">版本</p>
+                                </div>
+                                <span>1.0.0</span>
+                            </div>
+                            
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <p class="font-medium">隐私政策</p>
+                                </div>
+                                <i class="fa fa-chevron-right text-gray-400"></i>
+                            </div>
+                            
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <p class="font-medium">使用条款</p>
+                                </div>
+                                <i class="fa fa-chevron-right text-gray-400"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div>
-              <h3 class="font-medium">${custom.name}</h3>
-              <p class="text-xs text-gray-500">¥${custom.price.toFixed(2)}</p>
-              ${custom.desc ? `<p class="text-xs text-gray-400">${custom.desc}</p>` : ''}
+            
+            <!-- 7. 安全分析界面 -->
+            <div class="app-container animate-fade-in" style="animation-delay: 0.6s;">
+                <div class="app-header">
+                    <button class="text-white">
+                        <i class="fa fa-arrow-left text-xl"></i>
+                    </button>
+                    <h2 class="text-xl font-bold">安全分析</h2>
+                </div>
+                <div class="app-body">
+                    <div class="card mb-4">
+                        <div class="flex justify-between items-center mb-4">
+                            <h4 class="font-bold">总体安全评分</h4>
+                            <span class="text-2xl font-bold text-green-500">85%</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-3">
+                            <div class="bg-green-500 h-3 rounded-full" style="width: 85%"></div>
+                        </div>
+                        <p class="text-sm text-gray-600 mt-2">您的密码安全状况良好，但仍有改进空间</p>
+                    </div>
+                    
+                    <div class="card mb-4">
+                        <h4 class="font-bold mb-3">安全建议</h4>
+                        <div class="space-y-3">
+                            <div class="flex items-start">
+                                <div class="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center mr-3 mt-1">
+                                    <i class="fa fa-exclamation-triangle text-accent"></i>
+                                </div>
+                                <div>
+                                    <p class="font-medium">3个账户使用了弱密码</p>
+                                    <p class="text-sm text-gray-600">建议立即更新这些密码以提高安全性</p>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-start">
+                                <div class="w-8 h-8 bg-yellow-100 rounded-full flex items-center justify-center mr-3 mt-1">
+                                    <i class="fa fa-clock-o text-yellow-500"></i>
+                                </div>
+                                <div>
+                                    <p class="font-medium">5个密码超过6个月未更新</p>
+                                    <p class="text-sm text-gray-600">定期更改密码有助于保护您的账户安全</p>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-start">
+                                <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-3 mt-1">
+                                    <i class="fa fa-clone text-primary"></i>
+                                </div>
+                                <div>
+                                    <p class="font-medium">2个账户使用了相同的密码</p>
+                                    <p class="text-sm text-gray-600">建议为每个账户使用独特的密码</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card mb-4">
+                        <h4 class="font-bold mb-3">密码健康状况</h4>
+                        <div class="space-y-4">
+                            <div>
+                                <div class="flex justify-between mb-1">
+                                    <span>强密码</span>
+                                    <span>15</span>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-2">
+                                    <div class="bg-green-500 h-2 rounded-full" style="width: 60%"></div>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <div class="flex justify-between mb-1">
+                                    <span>中等强度密码</span>
+                                    <span>8</span>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-2">
+                                    <div class="bg-yellow-500 h-2 rounded-full" style="width: 32%"></div>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <div class="flex justify-between mb-1">
+                                    <span>弱密码</span>
+                                    <span>3</span>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-2">
+                                    <div class="bg-red-500 h-2 rounded-full" style="width: 12%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button class="btn btn-primary w-full">开始安全检查</button>
+                </div>
             </div>
-          </div>
-          <button class="text-gray-400 hover:text-red-500" onclick="Storage.remove('custom', ${custom.id})">
-            <i class="fa-solid fa-trash"></i>
-          </button>
+            
+            <!-- 8. 侧边栏导航 -->
+            <div class="app-container animate-fade-in" style="animation-delay: 0.7s;">
+                <div class="app-header">
+                    <button id="menu-toggle-2" class="text-white">
+                        <i class="fa fa-bars text-xl"></i>
+                    </button>
+                    <h2 class="text-xl font-bold">我的密码</h2>
+                    <button class="text-white">
+                        <i class="fa fa-search text-xl"></i>
+                    </button>
+                </div>
+                <div class="app-body">
+                    <!-- 主界面内容（模糊效果） -->
+                    <div class="opacity-50">
+                        <div class="mb-4">
+                            <input type="text" class="input-field" placeholder="搜索密码...">
+                        </div>
+                        
+                        <div class="skeleton h-24 mb-4 rounded-lg"></div>
+                        <div class="skeleton h-24 mb-4 rounded-lg"></div>
+                        <div class="skeleton h-24 mb-4 rounded-lg"></div>
+                    </div>
+                    
+                    <!-- 侧边栏 -->
+                    <div id="drawer" class="drawer drawer-open">
+                        <div class="p-4 bg-primary text-white">
+                            <div class="flex items-center">
+                                <div class="w-12 h-12 bg-white rounded-full flex items-center justify-center mr-3">
+                                    <i class="fa fa-user text-primary text-xl"></i>
+                                </div>
+                                <div>
+                                    <h3 class="font-bold">用户名</h3>
+                                    <p class="text-sm opacity-80">user@example.com</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <nav class="p-4">
+                            <ul class="space-y-2">
+                                <li>
+                                    <a href="#" class="flex items-center p-2 rounded-lg bg-blue-50 text-primary">
+                                        <i class="fa fa-home w-6"></i>
+                                        <span>首页</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="#" class="flex items-center p-2 rounded-lg hover:bg-gray-100">
+                                        <i class="fa fa-lock w-6"></i>
+                                        <span>我的密码</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="#" class="flex items-center p-2 rounded-lg hover:bg-gray-100">
+                                        <i class="fa fa-key w-6"></i>
+                                        <span>密码生成器</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="#" class="flex items-center p-2 rounded-lg hover:bg-gray-100">
+                                        <i class="fa fa-shield w-6"></i>
+                                        <span>安全分析</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="#" class="flex items-center p-2 rounded-lg hover:bg-gray-100">
+                                        <i class="fa fa-cog w-6"></i>
+                                        <span>设置</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="#" class="flex items-center p-2 rounded-lg hover:bg-gray-100">
+                                        <i class="fa fa-question-circle w-6"></i>
+                                        <span>帮助与支持</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </nav>
+                        
+                        <div class="absolute bottom-0 left-0 right-0 p-4">
+                            <button class="btn btn-outline w-full flex items-center justify-center">
+                                <i class="fa fa-sign-out mr-2"></i> 退出登录
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- 遮罩层 -->
+                    <div id="overlay" class="overlay overlay-visible"></div>
+                </div>
+            </div>
+            
+            <!-- 9. 生物识别解锁界面 -->
+            <div class="app-container animate-fade-in" style="animation-delay: 0.8s;">
+                <div class="app-header bg-gray-800">
+                    <h2 class="text-xl font-bold">安全解锁</h2>
+                </div>
+                <div class="app-body bg-gray-800 flex flex-col items-center justify-center text-white">
+                    <div class="text-center mb-8">
+                        <div class="w-32 h-32 bg-primary bg-opacity-20 rounded-full flex items-center justify-center mx-auto mb-6">
+                            <i class="fa fa-fingerprint biometric-icon"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold mb-2">请验证您的身份</h3>
+                        <p class="text-gray-300">使用指纹或面部识别解锁应用</p>
+                    </div>
+                    
+                    <div class="w-full max-w-xs">
+                        <div class="mb-4 relative">
+                            <div class="absolute inset-0 flex items-center">
+                                <div class="w-full border-t border-gray-600"></div>
+                            </div>
+                            <div class="relative flex justify-center text-sm">
+                                <span class="px-2 bg-gray-800 text-gray-400">或</span>
+                            </div>
+                        </div>
+                        
+                        <button class="btn btn-outline border-gray-600 text-white hover:bg-gray-700 w-full mb-4">
+                            使用主密码解锁
+                        </button>
+                        
+                        <button class="text-gray-400 w-full text-center">
+                            忘记密码?
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
-      `).join('');
-    }
+    </div>
 
-    // ===================== 模块渲染：火车车次对比 =====================
-    function renderTrainCompare() {
-      const trainCompareBody = document.getElementById('trainCompareBody');
-      const trainCompareEmpty = document.getElementById('trainCompareEmpty');
-      const trains = Storage.get('train');
-      const compareData = [];
-
-      // 遍历中转地，整理长春→中转地、中转地→天津的车次
-      transferCities.forEach(city => {
-        const toTransfer = trains.filter(t => t.startCity === '长春' && t.endCity === city);
-        const toTianjin = trains.filter(t => t.startCity === city && t.endCity === '天津');
-        if (toTransfer.length > 0 && toTianjin.length > 0) {
-          toTransfer.forEach(t1 => {
-            toTianjin.forEach(t2 => {
-              const duration1 = calcDuration(t1.startTime, t1.endTime);
-              const duration2 = calcDuration(t2.startTime, t2.endTime);
-              compareData.push({
-                transfer: city,
-                t1: t1,
-                t1Dur: duration1,
-                t2: t2,
-                t2Dur: duration2,
-                totalDur: `${Number(duration1.split('h')[0]) + Number(duration2.split('h')[0])}h`,
-                totalPrice: t1.price + t2.price
-              });
+    <script>
+        // 简单的交互效果
+        document.addEventListener('DOMContentLoaded', function() {
+            // 侧边栏切换
+            const menuToggle = document.getElementById('menu-toggle');
+            const menuToggle2 = document.getElementById('menu-toggle-2');
+            const drawer = document.getElementById('drawer');
+            const overlay = document.getElementById('overlay');
+            
+            if (menuToggle) {
+                menuToggle.addEventListener('click', function() {
+                    drawer.classList.toggle('drawer-open');
+                    overlay.classList.toggle('overlay-visible');
+                });
+            }
+            
+            if (menuToggle2) {
+                menuToggle2.addEventListener('click', function() {
+                    drawer.classList.toggle('drawer-open');
+                    overlay.classList.toggle('overlay-visible');
+                });
+            }
+            
+            if (overlay) {
+                overlay.addEventListener('click', function() {
+                    drawer.classList.remove('drawer-open');
+                    overlay.classList.remove('overlay-visible');
+                });
+            }
+            
+            // 密码显示/隐藏切换
+            const eyeIcons = document.querySelectorAll('.fa-eye, .fa-eye-slash');
+            eyeIcons.forEach(icon => {
+                icon.addEventListener('click', function() {
+                    const input = this.closest('div').previousElementSibling;
+                    if (input && input.type === 'password') {
+                        input.type = 'text';
+                        this.classList.remove('fa-eye-slash');
+                        this.classList.add('fa-eye');
+                    } else if (input && input.type === 'text') {
+                        input.type = 'password';
+                        this.classList.remove('fa-eye');
+                        this.classList.add('fa-eye-slash');
+                    }
+                });
             });
-          });
-        }
-      });
-
-      if (compareData.length === 0) {
-        trainCompareBody.innerHTML = '';
-        trainCompareEmpty.classList.remove('hidden');
-        return;
-      }
-      trainCompareEmpty.classList.add('hidden');
-      trainCompareBody.innerHTML = compareData.map(item => `
-        <tr class="hover:bg-light/50">
-          <td class="py-3 px-2 text-sm">${item.transfer}</td>
-          <td class="py-3 px-2 text-sm">${item.t1.trainNo}</td>
-          <td class="py-3 px-2 text-sm">${item.t1Dur} / ¥${item.t1.price.toFixed(2)}</td>
-          <td class="py-3 px-2 text-sm">${item.t2.trainNo}</td>
-          <td class="py-3 px-2 text-sm">${item.t2Dur} / ¥${item.t2.price.toFixed(2)}</td>
-          <td class="py-3 px-2 text-sm font-medium text-primary">${item.totalDur} / ¥${item.totalPrice.toFixed(2)}</td>
-        </tr>
-      `).join('');
-    }
-
-    // ===================== 模块渲染：飞机航班对比 =====================
-    function renderPlaneCompare() {
-      const planeCompareBody = document.getElementById('planeCompareBody');
-      const planeCompareEmpty = document.getElementById('planeCompareEmpty');
-      const planes = Storage.get('plane');
-      const compareData = [];
-
-      // 遍历中转地，整理长春→中转地、中转地→天津的航班
-      transferCities.forEach(city => {
-        const toTransfer = planes.filter(p => p.startCity.includes('长春') && p.endCity.includes(city));
-        const toTianjin = planes.filter(p => p.startCity.includes(city) && p.endCity.includes('天津'));
-        if (toTransfer.length > 0 && toTianjin.length > 0) {
-          toTransfer.forEach(p1 => {
-            toTianjin.forEach(p2 => {
-              const duration1 = calcDuration(p1.startTime, p1.endTime);
-              const duration2 = calcDuration(p2.startTime, p2.endTime);
-              compareData.push({
-                transfer: city,
-                p1: p1,
-                p1Dur: duration1,
-                p2: p2,
-                p2Dur: duration2,
-                totalDur: `${Number(duration1.split('h')[0]) + Number(duration2.split('h')[0])}h`,
-                totalPrice: p1.price + p2.price
-              });
+            
+            // 复选框交互
+            const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+            checkboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                    // 这里可以添加复选框变化时的逻辑
+                });
             });
-          });
-        }
-      });
-
-      if (compareData.length === 0) {
-        planeCompareBody.innerHTML = '';
-        planeCompareEmpty.classList.remove('hidden');
-        return;
-      }
-      planeCompareEmpty.classList.add('hidden');
-      planeCompareBody.innerHTML = compareData.map(item => `
-        <tr class="hover:bg-light/50">
-          <td class="py-3 px-2 text-sm">${item.transfer}</td>
-          <td class="py-3 px-2 text-sm">${item.p1.planeNo}(${item.p1.airline})</td>
-          <td class="py-3 px-2 text-sm">${item.p1Dur} / ¥${item.p1.price.toFixed(2)}</td>
-          <td class="py-3 px-2 text-sm">${item.p2.planeNo}(${item.p2.airline})</td>
-          <td class="py-3 px-2 text-sm">${item.p2Dur} / ¥${item.p2.price.toFixed(2)}</td>
-          <td class="py-3 px-2 text-sm font-medium text-primary">${item.totalDur} / ¥${item.totalPrice.toFixed(2)}</td>
-        </tr>
-      `).join('');
-    }
-
-    // ===================== 工具函数：时间/日期格式化 =====================
-    // 格式化datetime-local为 年-月-日 时:分
-    function formatTime(timeStr) {
-      if (!timeStr) return '未填写';
-      const date = new Date(timeStr);
-      return `${date.getFullYear()}-${(date.getMonth()+1).toString().padStart(2,0)}-${date.getDate().toString().padStart(2,0)} ${date.getHours().toString().padStart(2,0)}:${date.getMinutes().toString().padStart(2,0)}`;
-    }
-
-    // 格式化date为 年-月-日
-    function formatDate(dateStr) {
-      if (!dateStr) return '未填写';
-      const date = new Date(dateStr);
-      return `${date.getFullYear()}-${(date.getMonth()+1).toString().padStart(2,0)}-${date.getDate().toString().padStart(2,0)}`;
-    }
-
-    // 计算两个日期之间的天数
-    function calcDays(startDate, endDate) {
-      if (!startDate || !endDate) return 0;
-      const start = new Date(startDate);
-      const end = new Date(endDate);
-      const diff = end - start;
-      return Math.ceil(diff / (1000 * 60 * 60 * 24));
-    }
-
-    // 计算交通耗时（时）
-    function calcDuration(startTime, endTime) {
-      if (!startTime || !endTime) return '0h';
-      const start = new Date(startTime);
-      const end = new Date(endTime);
-      const diff = end - start;
-      const hours = (diff / (1000 * 60 * 60)).toFixed(0);
-      return `${hours}h`;
-    }
-
-    // ===================== 工具函数：弹窗/表单快捷操作 =====================
-    // 打开对比弹窗
-    function openCompareModal() {
-      document.getElementById('compareModal').classList.remove('hidden');
-      renderTrainCompare(); // 默认显示火车对比
-    }
-
-    // 路线节点快捷添加景点（自动填充城市）
-    function openScenicForm(city) {
-      // 切换到景点标签
-      document.querySelectorAll('.tab-link').forEach(l => l.classList.remove('tab-active'));
-      document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
-      document.querySelector('.tab-link[href="#scenic"]').classList.add('tab-active');
-      document.getElementById('scenic').classList.remove('hidden');
-      // 显示表单并填充城市
-      const scenicForm = document.getElementById('scenicForm');
-      scenicForm.classList.remove('hidden');
-      scenicForm.querySelector('input[name="city"]').value = city;
-      scenicForm.scrollIntoView({ behavior: 'smooth' });
-    }
-
-    // 路线节点快捷添加餐厅（自动填充城市）
-    function openRestaurantForm(city) {
-      // 切换到餐厅标签
-      document.querySelectorAll('.tab-link').forEach(l => l.classList.remove('tab-active'));
-      document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
-      document.querySelector('.tab-link[href="#restaurant"]').classList.add('tab-active');
-      document.getElementById('restaurant').classList.remove('hidden');
-      // 显示表单并填充城市
-      const restForm = document.getElementById('restaurantForm');
-      restForm.classList.remove('hidden');
-      restForm.querySelector('input[name="city"]').value = city;
-      restForm.scrollIntoView({ behavior: 'smooth' });
-    }
-  </script>
+            
+            // 滑块交互
+            const rangeInputs = document.querySelectorAll('input[type="range"]');
+            rangeInputs.forEach(input => {
+                input.addEventListener('input', function() {
+                    const valueDisplay = this.nextElementSibling;
+                    if (valueDisplay) {
+                        valueDisplay.textContent = this.value;
+                    }
+                });
+            });
+        });
+    </script>
 </body>
 </html>
